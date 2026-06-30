@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuickDevis — Créez vos devis en 2 minutes</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.11.0/dist/tabler-icons.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a09;
+      --bg2: #111110;
+      --bg3: #1a1a18;
+      --bg4: #242422;
+      --text: #f0eeeb;
+      --muted: #9a9a96;
+      --subtle: #5a5a57;
+      --border: rgba(255,255,255,0.08);
+      --border2: rgba(255,255,255,0.14);
+      --accent: #EF9F27;
+      --accent-dark: #BA7517;
+      --accent-bg: rgba(239,159,39,0.12);
+      --accent-text: #FAC775;
+      --font: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 16px; line-height: 1.6; overflow-x: hidden; }
+
+    /* NAV */
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,10,9,0.85); backdrop-filter: blur(12px); border-bottom: 0.5px solid var(--border); }
+    .nav-inner { max-width: 1100px; margin: 0 auto; padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo { font-size: 18px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; text-decoration: none; }
+    .nav-logo i { color: var(--accent); font-size: 20px; }
+    .nav-links { display: flex; align-items: center; gap: 28px; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 14px; transition: color 0.15s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta { background: var(--accent); color: #1a0d00; padding: 8px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; text-decoration: none; transition: background 0.15s; }
+    .nav-cta:hover { background: var(--accent-dark); }
+
+    /* HERO */
+    .hero { padding: 140px 24px 100px; text-align: center; max-width: 800px; margin: 0 auto; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--accent-bg); color: var(--accent-text); border: 0.5px solid rgba(239,159,39,0.25); padding: 5px 14px; border-radius: 999px; font-size: 13px; font-weight: 500; margin-bottom: 28px; }
+    .hero-badge i { font-size: 14px; }
+    h1 { font-size: clamp(36px, 6vw, 62px); font-weight: 600; line-height: 1.15; letter-spacing: -0.03em; color: var(--text); margin-bottom: 20px; }
+    h1 span { color: var(--accent); }
+    .hero-sub { font-size: 18px; color: var(--muted); max-width: 540px; margin: 0 auto 36px; line-height: 1.7; }
+    .hero-actions { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
+    .btn-main { background: var(--accent); color: #1a0d00; padding: 14px 28px; border-radius: 10px; font-size: 15px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: background 0.15s, transform 0.1s; }
+    .btn-main:hover { background: #FAC775; transform: translateY(-1px); }
+    .btn-main i { font-size: 18px; }
+    .btn-ghost { border: 0.5px solid var(--border2); color: var(--text); padding: 14px 28px; border-radius: 10px; font-size: 15px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: background 0.15s; }
+    .btn-ghost:hover { background: var(--bg3); }
+    .hero-note { margin-top: 18px; font-size: 13px; color: var(--subtle); }
+    .hero-note i { font-size: 14px; color: var(--accent); vertical-align: -2px; }
+
+    /* MOCKUP */
+    .mockup-section { max-width: 900px; margin: 0 auto; padding: 0 24px 80px; }
+    .mockup-wrap { background: var(--bg2); border: 0.5px solid var(--border2); border-radius: 16px; overflow: hidden; }
+    .mockup-bar { background: var(--bg3); border-bottom: 0.5px solid var(--border); padding: 10px 16px; display: flex; align-items: center; gap: 6px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-r { background: #ff5f57; }
+    .dot-y { background: #febc2e; }
+    .dot-g { background: #28c840; }
+    .mockup-url { background: var(--bg4); border-radius: 6px; padding: 4px 12px; font-size: 12px; color: var(--muted); margin: 0 auto; }
+    .mockup-content { padding: 24px; display: grid; grid-template-columns: 180px 1fr; gap: 0; min-height: 320px; }
+    .mock-sidebar { background: var(--bg3); border-right: 0.5px solid var(--border); padding: 16px 12px; }
+    .mock-logo { font-size: 14px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 6px; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 0.5px solid var(--border); }
+    .mock-logo i { color: var(--accent); }
+    .mock-nav-item { display: flex; align-items: center; gap: 8px; padding: 7px 8px; border-radius: 6px; font-size: 12px; color: var(--muted); margin-bottom: 2px; }
+    .mock-nav-item.active { background: var(--accent-bg); color: var(--accent-text); }
+    .mock-nav-item i { font-size: 15px; }
+    .mock-main { padding: 16px 20px; background: var(--bg2); }
+    .mock-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 16px; }
+    .mock-stat { background: var(--bg3); border-radius: 8px; padding: 10px 12px; }
+    .mock-stat-label { font-size: 10px; color: var(--muted); margin-bottom: 4px; }
+    .mock-stat-val { font-size: 18px; font-weight: 600; color: var(--text); }
+    .mock-stat-val.amber { color: var(--accent); }
+    .mock-table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .mock-table-title { font-size: 12px; font-weight: 500; color: var(--text); }
+    .mock-btn { background: var(--accent); color: #1a0d00; padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+    .mock-row { display: grid; grid-template-columns: 100px 1fr 80px 70px; gap: 8px; padding: 8px 0; border-bottom: 0.5px solid var(--border); font-size: 11px; color: var(--muted); align-items: center; }
+    .mock-row.head { color: var(--subtle); font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .mock-badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 500; }
+    .badge-ok { background: rgba(99,153,34,0.15); color: #97C459; }
+    .badge-wait { background: rgba(186,117,23,0.15); color: var(--accent-text); }
+    .badge-draft { background: var(--bg4); color: var(--subtle); }
+
+    /* STATS BAND */
+    .stats-band { background: var(--bg2); border-top: 0.5px solid var(--border); border-bottom: 0.5px solid var(--border); padding: 40px 24px; }
+    .stats-inner { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
+    .stat-item { text-align: center; padding: 0 24px; border-right: 0.5px solid var(--border); }
+    .stat-item:last-child { border-right: none; }
+    .stat-num { font-size: 40px; font-weight: 600; color: var(--accent); }
+    .stat-label { font-size: 14px; color: var(--muted); margin-top: 4px; }
+
+    /* FEATURES */
+    .features { max-width: 1000px; margin: 0 auto; padding: 80px 24px; }
+    .section-eyebrow { font-size: 13px; font-weight: 500; color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+    .section-title { font-size: clamp(26px, 4vw, 38px); font-weight: 600; letter-spacing: -0.02em; margin-bottom: 48px; }
+    .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .feature-card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: 14px; padding: 22px 22px 24px; transition: border-color 0.2s; }
+    .feature-card:hover { border-color: var(--border2); }
+    .feature-icon { width: 40px; height: 40px; background: var(--accent-bg); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
+    .feature-icon i { font-size: 20px; color: var(--accent); }
+    .feature-title { font-size: 15px; font-weight: 500; margin-bottom: 8px; }
+    .feature-desc { font-size: 14px; color: var(--muted); line-height: 1.65; }
+
+    /* HOW IT WORKS */
+    .how { background: var(--bg2); border-top: 0.5px solid var(--border); border-bottom: 0.5px solid var(--border); padding: 80px 24px; }
+    .how-inner { max-width: 900px; margin: 0 auto; }
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 48px; position: relative; }
+    .steps::before { content: ''; position: absolute; top: 22px; left: calc(16.66% + 22px); right: calc(16.66% + 22px); height: 0.5px; background: var(--border2); }
+    .step { text-align: center; padding: 0 16px; }
+    .step-num { width: 44px; height: 44px; border-radius: 50%; background: var(--accent-bg); border: 0.5px solid rgba(239,159,39,0.3); color: var(--accent); font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+    .step-title { font-size: 15px; font-weight: 500; margin-bottom: 8px; }
+    .step-desc { font-size: 14px; color: var(--muted); }
+
+    /* TESTIMONIALS */
+    .testimonials { max-width: 1000px; margin: 0 auto; padding: 80px 24px; }
+    .testi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 48px; }
+    .testi-card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: 14px; padding: 22px; }
+    .testi-stars { color: var(--accent); font-size: 14px; margin-bottom: 12px; letter-spacing: 2px; }
+    .testi-text { font-size: 14px; color: var(--muted); line-height: 1.7; margin-bottom: 16px; }
+    .testi-author { display: flex; align-items: center; gap: 10px; }
+    .testi-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--accent-bg); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: var(--accent-text); flex-shrink: 0; }
+    .testi-name { font-size: 13px; font-weight: 500; }
+    .testi-job { font-size: 12px; color: var(--subtle); }
+
+    /* PRICING */
+    .pricing { background: var(--bg2); border-top: 0.5px solid var(--border); border-bottom: 0.5px solid var(--border); padding: 80px 24px; }
+    .pricing-inner { max-width: 800px; margin: 0 auto; }
+    .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 48px; }
+    .p-card { background: var(--bg3); border: 0.5px solid var(--border); border-radius: 14px; padding: 24px; }
+    .p-card.featured { border: 1.5px solid rgba(239,159,39,0.4); background: rgba(239,159,39,0.04); }
+    .p-popular { font-size: 11px; font-weight: 600; background: var(--accent-bg); color: var(--accent-text); border-radius: 999px; padding: 3px 10px; display: inline-block; margin-bottom: 10px; }
+    .p-name { font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+    .p-price { font-size: 30px; font-weight: 600; color: var(--text); }
+    .p-period { font-size: 14px; font-weight: 400; color: var(--muted); }
+    .p-desc { font-size: 13px; color: var(--muted); margin: 8px 0 18px; }
+    .p-divider { border: none; border-top: 0.5px solid var(--border); margin: 18px 0; }
+    .p-feature { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+    .p-feature i { font-size: 15px; color: var(--accent); flex-shrink: 0; }
+    .p-feature.off i { color: var(--subtle); }
+    .p-feature.off { color: var(--subtle); }
+    .p-btn { display: block; text-align: center; padding: 11px; border-radius: 8px; font-size: 14px; font-weight: 500; text-decoration: none; margin-top: 20px; transition: background 0.15s; }
+    .p-btn-main { background: var(--accent); color: #1a0d00; font-weight: 600; }
+    .p-btn-main:hover { background: #FAC775; }
+    .p-btn-ghost { border: 0.5px solid var(--border2); color: var(--text); }
+    .p-btn-ghost:hover { background: var(--bg4); }
+
+    /* CTA FINAL */
+    .cta-final { max-width: 700px; margin: 0 auto; padding: 100px 24px; text-align: center; }
+    .cta-final h2 { font-size: clamp(28px, 5vw, 46px); font-weight: 600; letter-spacing: -0.02em; margin-bottom: 16px; }
+    .cta-final p { font-size: 16px; color: var(--muted); margin-bottom: 36px; }
+
+    /* FOOTER */
+    footer { background: var(--bg2); border-top: 0.5px solid var(--border); padding: 32px 24px; text-align: center; }
+    footer p { font-size: 13px; color: var(--subtle); }
+    footer span { color: var(--accent); }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .features-grid { grid-template-columns: 1fr; }
+      .steps { grid-template-columns: 1fr; }
+      .steps::before { display: none; }
+      .testi-grid { grid-template-columns: 1fr; }
+      .pricing-grid { grid-template-columns: 1fr; }
+      .stats-inner { grid-template-columns: 1fr; }
+      .stat-item { border-right: none; border-bottom: 0.5px solid var(--border); padding: 20px 0; }
+      .stat-item:last-child { border-bottom: none; }
+      .mockup-content { grid-template-columns: 1fr; }
+      .mock-sidebar { display: none; }
+      .mock-stats { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="nav-logo"><i class="ti ti-bolt"></i> QuickDevis</a>
+    <div class="nav-links">
+      <a href="#features">Fonctionnalités</a>
+      <a href="#comment">Comment ça marche</a>
+      <a href="#tarifs">Tarifs</a>
+      <a href="app.html" class="nav-cta"><i class="ti ti-arrow-right" style="font-size:15px;vertical-align:-2px"></i> Essayer gratuitement</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge"><i class="ti ti-bolt"></i> Aucune installation requise</div>
+  <h1>Créez vos devis<br>en <span>2 minutes</span> chrono</h1>
+  <p class="hero-sub">L'outil pensé pour les artisans. Fini les devis sur Excel ou papier — créez, envoyez et suivez vos devis depuis n'importe où.</p>
+  <div class="hero-actions">
+    <a href="app.html" class="btn-main"><i class="ti ti-rocket"></i> Commencer gratuitement</a>
+    <a href="#comment" class="btn-ghost"><i class="ti ti-player-play"></i> Voir comment ça marche</a>
+  </div>
+  <p class="hero-note"><i class="ti ti-check"></i> Gratuit pour toujours · Aucune carte bancaire · Prêt en 30 secondes</p>
+</section>
+
+<!-- MOCKUP -->
+<div class="mockup-section">
+  <div class="mockup-wrap">
+    <div class="mockup-bar">
+      <div class="dot dot-r"></div>
+      <div class="dot dot-y"></div>
+      <div class="dot dot-g"></div>
+      <div class="mockup-url">quickdevis.fr/app</div>
+    </div>
+    <div class="mockup-content">
+      <div class="mock-sidebar">
+        <div class="mock-logo"><i class="ti ti-bolt"></i> QuickDevis</div>
+        <div class="mock-nav-item active"><i class="ti ti-layout-dashboard"></i> Tableau de bord</div>
+        <div class="mock-nav-item"><i class="ti ti-plus"></i> Nouveau devis</div>
+        <div class="mock-nav-item"><i class="ti ti-files"></i> Mes devis</div>
+        <div class="mock-nav-item"><i class="ti ti-users"></i> Clients</div>
+      </div>
+      <div class="mock-main">
+        <div class="mock-stats">
+          <div class="mock-stat"><div class="mock-stat-label">Devis ce mois</div><div class="mock-stat-val amber">12</div></div>
+          <div class="mock-stat"><div class="mock-stat-label">Acceptés</div><div class="mock-stat-val">8</div></div>
+          <div class="mock-stat"><div class="mock-stat-label">En attente</div><div class="mock-stat-val">3</div></div>
+          <div class="mock-stat"><div class="mock-stat-label">CA généré</div><div class="mock-stat-val amber">9 420 €</div></div>
+        </div>
+        <div class="mock-table-header">
+          <div class="mock-table-title">Derniers devis</div>
+          <div class="mock-btn">+ Nouveau</div>
+        </div>
+        <div class="mock-row head"><span>Numéro</span><span>Client</span><span>Montant</span><span>Statut</span></div>
+        <div class="mock-row"><span>DEV-2024-012</span><span>J. Martin</span><span>1 840 €</span><span><span class="mock-badge badge-ok">Accepté</span></span></div>
+        <div class="mock-row"><span>DEV-2024-011</span><span>S. Bernard</span><span>620 €</span><span><span class="mock-badge badge-wait">En attente</span></span></div>
+        <div class="mock-row"><span>DEV-2024-010</span><span>P. Lefebvre</span><span>3 200 €</span><span><span class="mock-badge badge-ok">Accepté</span></span></div>
+        <div class="mock-row"><span>DEV-2024-009</span><span>M. Rousseau</span><span>480 €</span><span><span class="mock-badge badge-draft">Brouillon</span></span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATS BAND -->
+<div class="stats-band">
+  <div class="stats-inner">
+    <div class="stat-item">
+      <div class="stat-num">2 min</div>
+      <div class="stat-label">Pour créer un devis complet</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">100%</div>
+      <div class="stat-label">Gratuit pour commencer</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">0 €</div>
+      <div class="stat-label">De frais fixes · Paiement à l'usage</div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="section-eyebrow">Fonctionnalités</div>
+  <div class="section-title">Tout ce dont un artisan a besoin</div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon"><i class="ti ti-bolt"></i></div>
+      <div class="feature-title">Devis en 2 minutes</div>
+      <div class="feature-desc">Remplis les lignes de prestation, le calcul TVA et le total TTC se font automatiquement. Plus d'erreurs de calcul.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="ti ti-file-download"></i></div>
+      <div class="feature-title">Export PDF instantané</div>
+      <div class="feature-desc">Un clic pour générer un PDF professionnel avec ton logo, tes coordonnées et une zone de signature client.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="ti ti-device-mobile"></i></div>
+      <div class="feature-title">Accessible partout</div>
+      <div class="feature-desc">Sur chantier, en voiture ou chez toi. QuickDevis fonctionne sur téléphone, tablette et ordinateur.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="ti ti-users"></i></div>
+      <div class="feature-title">Suivi des clients</div>
+      <div class="feature-desc">Retrouve l'historique de chaque client, ses devis précédents et le montant total engagé en un clin d'œil.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="ti ti-chart-bar"></i></div>
+      <div class="feature-title">Tableau de bord clair</div>
+      <div class="feature-desc">Vois d'un coup d'œil combien de devis tu as envoyés, acceptés, et quel est ton chiffre d'affaires du mois.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="ti ti-refresh"></i></div>
+      <div class="feature-title">Statuts en temps réel</div>
+      <div class="feature-desc">Marque tes devis Brouillon, En attente, Accepté ou Refusé. Suis l'avancement de chaque chantier facilement.</div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="comment">
+  <div class="how-inner">
+    <div class="section-eyebrow">Comment ça marche</div>
+    <div class="section-title">Opérationnel en 3 étapes</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-title">Crée ton compte</div>
+        <div class="step-desc">Inscris-toi en 30 secondes, sans carte bancaire. Renseigne le nom de ton entreprise et c'est parti.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-title">Remplis ton devis</div>
+        <div class="step-desc">Ajoute les lignes de prestation, les quantités et les prix. Le total TTC se calcule tout seul.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-title">Envoie à ton client</div>
+        <div class="step-desc">Imprime ou sauvegarde en PDF. Partage par email ou WhatsApp. Ton client signe, tu démarres le chantier.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials">
+  <div class="section-eyebrow">Témoignages</div>
+  <div class="section-title">Ce que disent les artisans</div>
+  <div class="testi-grid">
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-text">Avant je perdais 1h à faire mes devis sur Excel. Maintenant c'est 5 minutes, le client reçoit quelque chose de propre et professionnel.</p>
+      <div class="testi-author">
+        <div class="testi-avatar">MR</div>
+        <div><div class="testi-name">Marc R.</div><div class="testi-job">Électricien, Lyon</div></div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-text">Je l'utilise depuis le chantier sur mon téléphone. En 2 minutes le devis est prêt, je l'envoie par WhatsApp. Simple et efficace.</p>
+      <div class="testi-author">
+        <div class="testi-avatar">SL</div>
+        <div><div class="testi-name">Sophie L.</div><div class="testi-job">Plombière, Nantes</div></div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-text">Le tableau de bord me montre exactement où j'en suis chaque mois. J'aurais dû avoir ça depuis le début de mon activité.</p>
+      <div class="testi-author">
+        <div class="testi-avatar">TD</div>
+        <div><div class="testi-name">Thomas D.</div><div class="testi-job">Peintre, Bordeaux</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="tarifs">
+  <div class="pricing-inner">
+    <div class="section-eyebrow">Tarifs</div>
+    <div class="section-title">Simple et transparent</div>
+    <div class="pricing-grid">
+      <div class="p-card">
+        <div class="p-name">Starter</div>
+        <div class="p-price">Gratuit</div>
+        <div class="p-desc">Pour démarrer et tester</div>
+        <hr class="p-divider">
+        <div class="p-feature"><i class="ti ti-check"></i> 5 devis par mois</div>
+        <div class="p-feature"><i class="ti ti-check"></i> Export PDF</div>
+        <div class="p-feature"><i class="ti ti-check"></i> Suivi des clients</div>
+        <div class="p-feature off"><i class="ti ti-x"></i> Devis illimités</div>
+        <div class="p-feature off"><i class="ti ti-x"></i> Relances automatiques</div>
+        <a href="app.html" class="p-btn p-btn-ghost">Commencer</a>
+      </div>
+      <div class="p-card featured">
+        <div class="p-popular">Le plus populaire</div>
+        <div class="p-name">Pro</div>
+        <div class="p-price">19 €<span class="p-period">/mois</span></div>
+        <div class="p-desc">Pour les artisans actifs</div>
+        <hr class="p-divider">
+        <div class="p-feature"><i class="ti ti-check"></i> Devis illimités</div>
+        <div class="p-feature"><i class="ti ti-check"></i> Export PDF haute qualité</div>
+        <div class="p-feature"><i class="ti ti-check"></i> Suivi des clients</div>
+        <div class="p-feature"><i class="ti ti-check"></i> Relances automatiques</div>
+        <div class="p-feature"><i class="ti ti-check"></i> Support prioritaire</div>
+        <a href="https://buy.stripe.com/00waEZgJBcyOdwlbdR8Vi01" target="_blank" class="p-btn p-btn-main"><i class="ti ti-credit-card" style="font-size:14px;vertical-align:-2px;margin-right:4px"></i> Passer au Pro — 19 €/mois</a>
+      </div>
+      <div class="p-card">
+        <div class="p-name">Équipe</div>
+        <div class="p-price">49 €<span class="p-period">/mois</span></div>
+        <div class="p-desc">Pour les équipes et groupements</div>
+        <hr class="p-divider">
+        <div class="p-feature"><i class="ti ti-check"></i> Tout le plan Pro</div>
+        <div class="p-feature"><i class="ti ti-check"></i> Jusqu'à 5 utilisateurs</div>
+        <div class="p-feature"><i class="ti ti-check"></i> Tableau de bord commun</div>
+        <div class="p-feature"><i class="ti ti-check"></i> Factures + devis</div>
+        <div class="p-feature"><i class="ti ti-check"></i> Accès API</div>
+        <a href="app.html" class="p-btn p-btn-ghost">Bientôt disponible</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-final">
+  <h2>Prêt à gagner du temps sur tes devis ?</h2>
+  <p>Rejoins les artisans qui utilisent QuickDevis pour travailler plus vite et paraître plus professionnel.</p>
+  <a href="app.html" class="btn-main" style="margin: 0 auto; display: inline-flex;">
+    <i class="ti ti-rocket"></i> Créer mon premier devis — c'est gratuit
+  </a>
+  <p style="margin-top:16px; font-size:13px; color: var(--subtle);">Aucune carte bancaire · Aucune installation · Prêt en 30 secondes</p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2024 <span>QuickDevis</span> · Fait avec passion pour les artisans français</p>
+</footer>
+
+</body>
+</html>

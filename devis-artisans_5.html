@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuickDevis — Générateur de devis pour artisans</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.11.0/dist/tabler-icons.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a09;
+      --bg2: #111110;
+      --bg3: #1a1a18;
+      --bg4: #242422;
+      --text: #f0eeeb;
+      --muted: #9a9a96;
+      --subtle: #5a5a57;
+      --border: rgba(255,255,255,0.08);
+      --border2: rgba(255,255,255,0.14);
+      --accent: #EF9F27;
+      --accent-dark: #BA7517;
+      --accent-bg: rgba(239,159,39,0.12);
+      --accent-text: #FAC775;
+      --success: #1D9E75;
+      --success-bg: rgba(29,158,117,0.15);
+      --success-text: #5DCAA5;
+      --warning-bg: rgba(186,117,23,0.15);
+      --warning-text: #FAC775;
+      --danger: #E24B4A;
+      --danger-bg: rgba(226,75,74,0.15);
+      --danger-text: #F09595;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --font: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    html, body { height: 100%; font-family: var(--font); background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; }
+
+    .app { display: flex; height: 100vh; overflow: hidden; }
+    .sidebar { width: 220px; min-width: 220px; background: var(--bg2); border-right: 0.5px solid var(--border); display: flex; flex-direction: column; }
+    .main { flex: 1; overflow-y: auto; display: flex; flex-direction: column; min-width: 0; }
+
+    .logo { padding: 20px 16px 16px; border-bottom: 0.5px solid var(--border); }
+    .logo-name { font-size: 16px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
+    .logo-name i { color: var(--accent); font-size: 18px; }
+    .logo-tagline { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+    .nav { padding: 10px 8px; flex: 1; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--radius-md); cursor: pointer; font-size: 13px; color: var(--muted); margin-bottom: 2px; transition: background 0.12s, color 0.12s; user-select: none; }
+    .nav-item:hover { background: var(--bg3); color: var(--text); }
+    .nav-item.active { background: var(--accent-bg); color: var(--accent-text); font-weight: 500; }
+    .nav-item i { font-size: 17px; }
+
+    .sidebar-footer { padding: 12px 8px; border-top: 0.5px solid var(--border); }
+    .plan-box { background: var(--bg3); border-radius: var(--radius-md); padding: 10px 12px; border: 0.5px solid var(--border); }
+    .plan-name { font-size: 12px; font-weight: 500; color: var(--text); }
+    .plan-info { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    .topbar { background: var(--bg2); border-bottom: 0.5px solid var(--border); padding: 13px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+    .topbar-title { font-size: 15px; font-weight: 500; color: var(--text); }
+    .topbar-right { display: flex; gap: 8px; }
+
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: var(--radius-md); font-size: 13px; cursor: pointer; border: 0.5px solid var(--border2); background: var(--bg3); color: var(--text); font-family: var(--font); transition: background 0.12s; white-space: nowrap; }
+    .btn:hover { background: var(--bg4); }
+    .btn:active { transform: scale(0.98); }
+    .btn i { font-size: 15px; }
+    .btn-primary { background: var(--accent); color: #1a0d00; border-color: var(--accent); font-weight: 600; }
+    .btn-primary:hover { background: var(--accent-text); border-color: var(--accent-text); }
+
+    .content { padding: 24px; flex: 1; }
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 22px; }
+    .stat-card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius-md); padding: 14px 16px; }
+    .stat-label { font-size: 11px; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .stat-value { font-size: 24px; font-weight: 600; color: var(--text); }
+    .stat-value.amber { color: var(--accent); }
+    .stat-sub { font-size: 11px; color: var(--success-text); margin-top: 3px; }
+
+    .card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 16px 20px; margin-bottom: 16px; }
+    .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .card-title { font-size: 13px; font-weight: 500; color: var(--text); }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead th { text-align: left; font-size: 11px; font-weight: 500; color: var(--muted); padding: 0 12px 10px 0; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 0.5px solid var(--border); }
+    tbody td { padding: 10px 12px 10px 0; border-bottom: 0.5px solid var(--border); vertical-align: middle; color: var(--text); }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: var(--bg3); }
+
+    .badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 999px; font-size: 11px; font-weight: 500; }
+    .badge-accepted { background: var(--success-bg); color: var(--success-text); }
+    .badge-pending { background: var(--warning-bg); color: var(--warning-text); }
+    .badge-draft { background: var(--bg3); color: var(--muted); }
+    .badge-refused { background: var(--danger-bg); color: var(--danger-text); }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-group label { font-size: 11px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .form-group input, .form-group select, .form-group textarea { font-size: 13px; padding: 8px 10px; border: 0.5px solid var(--border2); border-radius: var(--radius-md); background: var(--bg3); color: var(--text); font-family: var(--font); width: 100%; transition: border-color 0.12s, box-shadow 0.12s; }
+    .form-group textarea { resize: vertical; min-height: 72px; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(239,159,39,0.12); }
+    .form-group select option { background: var(--bg3); }
+
+    .line-input { border: none; background: transparent; padding: 4px 6px; font-size: 13px; color: var(--text); font-family: var(--font); width: 100%; }
+    .line-input:focus { outline: 1px solid var(--accent); border-radius: 4px; background: var(--bg3); }
+    .add-line-btn { margin-top: 8px; font-size: 12px; color: var(--accent-text); cursor: pointer; display: inline-flex; align-items: center; gap: 4px; background: none; border: none; font-family: var(--font); padding: 0; }
+    .add-line-btn:hover { text-decoration: underline; }
+
+    .totals-wrap { margin-top: 12px; display: flex; justify-content: flex-end; }
+    .totals-inner { min-width: 230px; }
+    .totals-row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; color: var(--muted); }
+    .totals-row.grand { font-weight: 600; font-size: 15px; color: var(--text); border-top: 0.5px solid var(--border); padding-top: 8px; margin-top: 4px; }
+    .totals-row.grand span:last-child { color: var(--accent); }
+
+    .preview-wrap { max-width: 700px; margin: 0 auto; background: #fff; color: #1a1a18; border-radius: var(--radius-lg); }
+    .preview-wrap * { color: inherit; }
+    .preview-head { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 16px; border-bottom: 2px solid #EF9F27; margin-bottom: 20px; }
+    .preview-company-name { font-size: 18px; font-weight: 600; color: #1a1a18; }
+    .preview-company-meta { font-size: 12px; color: #6b6b68; margin-top: 3px; line-height: 1.6; }
+    .preview-num-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.07em; color: #6b6b68; }
+    .preview-num-val { font-size: 22px; font-weight: 600; color: #EF9F27; text-align: right; }
+    .preview-num-date { font-size: 12px; color: #6b6b68; text-align: right; margin-top: 3px; }
+    .preview-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 20px; }
+    .party-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.07em; color: #6b6b68; margin-bottom: 5px; }
+    .party-name { font-size: 14px; font-weight: 500; color: #1a1a18; }
+    .party-detail { font-size: 12px; color: #6b6b68; }
+    .preview-objet { font-size: 14px; font-weight: 500; color: #1a1a18; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 0.5px solid rgba(0,0,0,0.1); }
+    .sign-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 28px; padding-top: 16px; border-top: 0.5px solid rgba(0,0,0,0.1); }
+    .sign-label { font-size: 11px; font-weight: 500; margin-bottom: 8px; color: #1a1a18; }
+    .sign-line { height: 56px; border-bottom: 0.5px solid rgba(0,0,0,0.2); }
+
+    .link-btn { background: none; border: none; color: var(--accent-text); cursor: pointer; font-size: 13px; font-family: var(--font); padding: 0; }
+    .link-btn:hover { text-decoration: underline; }
+    .icon-btn { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 15px; padding: 2px 4px; border-radius: 4px; }
+    .icon-btn:hover { color: var(--text); background: var(--bg3); }
+    .icon-btn.danger:hover { color: var(--danger-text); }
+
+    .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .pricing-card { border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 18px; background: var(--bg3); }
+    .pricing-card.featured { border: 1.5px solid rgba(239,159,39,0.4); background: rgba(239,159,39,0.04); }
+    .pricing-popular { font-size: 10px; background: var(--accent-bg); color: var(--accent-text); border-radius: 999px; padding: 2px 10px; display: inline-block; font-weight: 500; margin-bottom: 8px; }
+    .pricing-name { font-size: 13px; font-weight: 500; margin-bottom: 6px; }
+    .pricing-price { font-size: 26px; font-weight: 600; color: var(--text); }
+    .pricing-period { font-size: 13px; font-weight: 400; color: var(--muted); }
+    .pricing-desc { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .pricing-cta { margin-top: 14px; width: 100%; text-align: center; justify-content: center; }
+
+    .empty { text-align: center; padding: 48px 24px; color: var(--muted); }
+    .empty i { font-size: 36px; display: block; margin-bottom: 10px; }
+    .empty p { font-size: 13px; }
+
+    .notif { position: fixed; bottom: 20px; right: 20px; background: var(--bg4); color: var(--text); border: 0.5px solid var(--border2); padding: 10px 18px; border-radius: var(--radius-md); font-size: 13px; font-weight: 500; z-index: 999; opacity: 0; transform: translateY(8px); transition: opacity 0.25s, transform 0.25s; pointer-events: none; }
+    .notif.show { opacity: 1; transform: translateY(0); }
+    .notif.success { background: var(--success); color: #fff; border-color: var(--success); }
+
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-group.full { grid-column: 1; }
+      .pricing-grid { grid-template-columns: 1fr; }
+      .dash-grid { grid-template-columns: 1fr !important; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-name"><i class="ti ti-bolt"></i> QuickDevis</div>
+      <div class="logo-tagline">Devis pour artisans</div>
+    </div>
+    <nav class="nav">
+      <div class="nav-item active" onclick="showPage('dashboard',this)"><i class="ti ti-layout-dashboard"></i> Tableau de bord</div>
+      <div class="nav-item" onclick="showPage('nouveau',this)"><i class="ti ti-plus"></i> Nouveau devis</div>
+      <div class="nav-item" onclick="showPage('liste',this)"><i class="ti ti-files"></i> Mes devis</div>
+      <div class="nav-item" onclick="showPage('clients',this)"><i class="ti ti-users"></i> Clients</div>
+      <div class="nav-item" onclick="showPage('parametres',this)"><i class="ti ti-settings"></i> Paramètres</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="plan-box">
+        <div class="plan-name">Plan Starter — Gratuit</div>
+        <div class="plan-info">5 devis / mois inclus</div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="topbar-title">Tableau de bord</div>
+      <div class="topbar-right">
+        <button class="btn btn-primary" onclick="newDevis()"><i class="ti ti-plus"></i> Nouveau devis</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div id="page-dashboard" class="page active">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Devis ce mois</div>
+            <div class="stat-value amber" id="s-total">0</div>
+            <div class="stat-sub" id="s-total-sub">au total</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Acceptés</div>
+            <div class="stat-value" id="s-accepted">0</div>
+            <div class="stat-sub" id="s-rate">Taux : 0%</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">En attente</div>
+            <div class="stat-value" id="s-pending">0</div>
+            <div class="stat-sub" style="color:var(--warning-text)">À relancer</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Chiffre accepté</div>
+            <div class="stat-value amber" id="s-amount">0 €</div>
+            <div class="stat-sub">Total TTC accepté</div>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;" class="dash-grid">
+          <div class="card" style="margin-bottom:0">
+            <div class="card-header"><div class="card-title">Répartition des paiements</div></div>
+            <div style="display:flex; align-items:center; gap:20px;">
+              <div style="position:relative; width:130px; height:130px; flex-shrink:0;">
+                <canvas id="donut-chart" role="img" aria-label="Graphique en anneau des paiements acceptés et devis en attente"></canvas>
+                <div id="donut-center" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;">
+                  <div style="font-size:18px;font-weight:600;color:var(--accent)" id="donut-pct">0%</div>
+                  <div style="font-size:10px;color:var(--muted)">encaissé</div>
+                </div>
+              </div>
+              <div style="flex:1; display:flex; flex-direction:column; gap:10px;">
+                <div>
+                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+                    <span style="width:10px;height:10px;border-radius:2px;background:#1D9E75;flex-shrink:0;display:inline-block;"></span>
+                    <span style="font-size:12px;color:var(--muted)">Paiements reçus</span>
+                  </div>
+                  <div style="font-size:15px;font-weight:500" id="donut-accepted-amt">0 €</div>
+                </div>
+                <div>
+                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+                    <span style="width:10px;height:10px;border-radius:2px;background:#BA7517;flex-shrink:0;display:inline-block;"></span>
+                    <span style="font-size:12px;color:var(--muted)">En attente</span>
+                  </div>
+                  <div style="font-size:15px;font-weight:500" id="donut-pending-amt">0 €</div>
+                </div>
+                <div>
+                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+                    <span style="width:10px;height:10px;border-radius:2px;background:#3a3a38;flex-shrink:0;display:inline-block;"></span>
+                    <span style="font-size:12px;color:var(--muted)">Autres</span>
+                  </div>
+                  <div style="font-size:15px;font-weight:500" id="donut-other-amt">0 €</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-bottom:0">
+            <div class="card-header">
+              <div class="card-title">Derniers devis</div>
+              <button class="link-btn" onclick="showPage('liste', document.querySelectorAll('.nav-item')[2])">Voir tous →</button>
+            </div>
+            <table>
+              <thead><tr>
+                <th>Numéro</th><th>Client</th><th>Montant</th><th>Statut</th><th></th>
+              </tr></thead>
+              <tbody id="dash-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- NOUVEAU DEVIS -->
+      <div id="page-nouveau" class="page">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Informations du devis</div></div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Numéro de devis</label>
+              <input type="text" id="f-num" placeholder="DEV-2024-001">
+            </div>
+            <div class="form-group">
+              <label>Date</label>
+              <input type="date" id="f-date">
+            </div>
+            <div class="form-group">
+              <label>Nom du client</label>
+              <input type="text" id="f-client" placeholder="ex: Martin Dupont" list="dl-clients">
+              <datalist id="dl-clients"></datalist>
+            </div>
+            <div class="form-group">
+              <label>Adresse du client</label>
+              <input type="text" id="f-adresse" placeholder="ex: 12 rue des Lilas, Paris">
+            </div>
+            <div class="form-group full">
+              <label>Objet des travaux</label>
+              <input type="text" id="f-objet" placeholder="ex: Installation électrique salle de bain">
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">Lignes de prestation</div></div>
+          <table>
+            <thead><tr>
+              <th style="width:40%">Description</th>
+              <th style="width:11%">Qté</th>
+              <th style="width:13%">Unité</th>
+              <th style="width:16%">Prix unitaire</th>
+              <th style="width:15%">Total HT</th>
+              <th style="width:5%"></th>
+            </tr></thead>
+            <tbody id="lines-tbody"></tbody>
+          </table>
+          <button class="add-line-btn" onclick="addLine()"><i class="ti ti-plus" style="font-size:13px"></i> Ajouter une ligne</button>
+          <div class="totals-wrap">
+            <div class="totals-inner">
+              <div class="totals-row"><span>Sous-total HT</span><span id="t-ht">0,00 €</span></div>
+              <div class="totals-row"><span>TVA (20%)</span><span id="t-tva">0,00 €</span></div>
+              <div class="totals-row grand"><span>Total TTC</span><span id="t-ttc">0,00 €</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">Notes et conditions</div></div>
+          <div class="form-grid">
+            <div class="form-group full">
+              <label>Notes libres</label>
+              <textarea id="f-notes" placeholder="ex: Travaux à réaliser sous 15 jours. Validité du devis : 30 jours. Garantie main d'œuvre 2 ans."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;">
+          <button class="btn" onclick="saveDevis('draft')"><i class="ti ti-device-floppy"></i> Brouillon</button>
+          <button class="btn" onclick="openPreview()"><i class="ti ti-eye"></i> Aperçu</button>
+          <button class="btn btn-primary" onclick="saveDevis('pending')"><i class="ti ti-send"></i> Enregistrer</button>
+        </div>
+      </div>
+
+      <!-- APERÇU -->
+      <div id="page-preview" class="page">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:8px;">
+          <button class="btn" onclick="showPage('nouveau', document.querySelectorAll('.nav-item')[1])"><i class="ti ti-arrow-left"></i> Modifier</button>
+          <div style="display:flex;gap:8px;">
+            <button class="btn" onclick="window.print()"><i class="ti ti-printer"></i> Imprimer / PDF</button>
+            <button class="btn btn-primary" onclick="saveDevis('pending'); notify('Devis enregistré !','success')"><i class="ti ti-check"></i> Valider</button>
+          </div>
+        </div>
+        <div class="card preview-wrap" id="preview-body"></div>
+      </div>
+
+      <!-- LISTE DEVIS -->
+      <div id="page-liste" class="page">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Tous les devis</div>
+            <input type="text" placeholder="Rechercher..." id="search-input" oninput="renderListe()" style="width:190px;font-size:12px;padding:5px 9px;border:0.5px solid var(--border2);border-radius:var(--radius-md);background:var(--bg3);color:var(--text);font-family:var(--font);">
+          </div>
+          <table>
+            <thead><tr>
+              <th>Numéro</th><th>Client</th><th>Objet</th><th>Montant TTC</th><th>Date</th><th>Statut</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="liste-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- CLIENTS -->
+      <div id="page-clients" class="page">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Répertoire clients</div></div>
+          <table>
+            <thead><tr>
+              <th>Nom</th><th>Adresse</th><th>Nb de devis</th><th>Total engagé TTC</th>
+            </tr></thead>
+            <tbody id="clients-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PARAMÈTRES -->
+      <div id="page-parametres" class="page">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Mon entreprise</div></div>
+          <div class="form-grid">
+            <div class="form-group"><label>Nom de l'entreprise</label><input type="text" id="p-nom" placeholder="ex: Dupont Électricité"></div>
+            <div class="form-group"><label>Métier</label><input type="text" id="p-metier" placeholder="ex: Électricien"></div>
+            <div class="form-group"><label>SIRET</label><input type="text" id="p-siret" placeholder="123 456 789 00012"></div>
+            <div class="form-group"><label>Téléphone</label><input type="text" id="p-tel" placeholder="06 12 34 56 78"></div>
+            <div class="form-group full"><label>Adresse</label><input type="text" id="p-adresse" placeholder="5 allée des Artisans, 75001 Paris"></div>
+            <div class="form-group full"><label>Email</label><input type="email" id="p-email" placeholder="contact@monentreprise.fr"></div>
+            <div class="form-group full" style="align-items:flex-start;">
+              <button class="btn btn-primary" onclick="saveParams()"><i class="ti ti-check"></i> Sauvegarder</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">Abonnement</div></div>
+          <div class="pricing-grid">
+            <div class="pricing-card">
+              <div class="pricing-name">Starter</div>
+              <div class="pricing-price">Gratuit</div>
+              <div class="pricing-desc">5 devis par mois</div>
+              <div style="margin-top:12px;font-size:12px;color:var(--success-text);font-weight:500;"><i class="ti ti-check" style="font-size:14px;vertical-align:-2px;"></i> Plan actuel</div>
+            </div>
+            <div class="pricing-card featured">
+              <div class="pricing-popular">Le plus populaire</div>
+              <div class="pricing-name">Pro</div>
+              <div class="pricing-price">19 €<span class="pricing-period">/mois</span></div>
+              <div class="pricing-desc">Devis illimités + export PDF + relances auto</div>
+              <a href="https://buy.stripe.com/00waEZgJBcyOdwlbdR8Vi01" target="_blank" class="btn btn-primary pricing-cta"><i class="ti ti-credit-card"></i> Passer au Pro</a>
+            </div>
+            <div class="pricing-card">
+              <div class="pricing-name">Équipe</div>
+              <div class="pricing-price">49 €<span class="pricing-period">/mois</span></div>
+              <div class="pricing-desc">Multi-utilisateurs, multi-artisans</div>
+              <button class="btn pricing-cta" onclick="notify('Disponible bientôt !')"><i class="ti ti-clock"></i> Bientôt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="notif" id="notif"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+  let devis = JSON.parse(localStorage.getItem('dp_devis') || '[]');
+  let params = JSON.parse(localStorage.getItem('dp_params') || '{}');
+  let lines = [];
+  let editingId = null;
+  let nextNum = parseInt(localStorage.getItem('dp_nextnum') || '1');
+  let donutChart = null;
+
+  function save() {
+    localStorage.setItem('dp_devis', JSON.stringify(devis));
+    localStorage.setItem('dp_params', JSON.stringify(params));
+    localStorage.setItem('dp_nextnum', String(nextNum));
+  }
+
+  function getTotal(ls) {
+    const ht = ls.reduce((s, r) => s + (parseFloat(r.qty)||0)*(parseFloat(r.price)||0), 0);
+    return { ht, tva: ht*0.2, ttc: ht*1.2 };
+  }
+
+  function fmtCurrency(n) {
+    return n.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
+  }
+
+  function fmtShort(n) { return Math.round(n).toLocaleString('fr-FR')+' €'; }
+  function padNum(n) { return String(n).padStart(3,'0'); }
+  function generateNum() { return 'DEV-'+new Date().getFullYear()+'-'+padNum(nextNum); }
+
+  function statusBadge(s) {
+    const map = { accepted:['Accepté','badge-accepted'], pending:['En attente','badge-pending'], draft:['Brouillon','badge-draft'], refused:['Refusé','badge-refused'] };
+    const [label,cls] = map[s]||['?','badge-draft'];
+    return '<span class="badge '+cls+'">'+label+'</span>';
+  }
+
+  function statusNext(s) { return {draft:'pending',pending:'accepted',accepted:'refused',refused:'draft'}[s]||'draft'; }
+
+  function notify(msg, type) {
+    const el = document.getElementById('notif');
+    el.textContent = msg;
+    el.className = 'notif show'+(type?' '+type:'');
+    clearTimeout(el._t);
+    el._t = setTimeout(()=>el.classList.remove('show'), 2800);
+  }
+
+  const pageLabels = { dashboard:'Tableau de bord', nouveau:'Nouveau devis', liste:'Mes devis', preview:'Aperçu du devis', clients:'Clients', parametres:'Paramètres' };
+
+  function showPage(id, navEl) {
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('page-'+id).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    if (navEl) navEl.classList.add('active');
+    document.getElementById('topbar-title').textContent = pageLabels[id]||'';
+    if (id==='dashboard') renderDashboard();
+    if (id==='liste') renderListe();
+    if (id==='clients') renderClients();
+    if (id==='parametres') loadParams();
+  }
+
+  function renderDashboard() {
+    const accepted = devis.filter(d=>d.status==='accepted');
+    const pending = devis.filter(d=>d.status==='pending');
+    const other = devis.filter(d=>d.status!=='accepted'&&d.status!=='pending');
+    document.getElementById('s-total').textContent = devis.length;
+    document.getElementById('s-total-sub').textContent = devis.length+' devis au total';
+    document.getElementById('s-accepted').textContent = accepted.length;
+    document.getElementById('s-rate').textContent = devis.length ? 'Taux : '+Math.round(accepted.length/devis.length*100)+'%' : 'Taux : 0%';
+    document.getElementById('s-pending').textContent = pending.length;
+    const amtAccepted = accepted.reduce((s,d)=>s+getTotal(d.lines).ttc,0);
+    const amtPending = pending.reduce((s,d)=>s+getTotal(d.lines).ttc,0);
+    const amtOther = other.reduce((s,d)=>s+getTotal(d.lines).ttc,0);
+    const amtTotal = amtAccepted+amtPending+amtOther;
+    document.getElementById('s-amount').textContent = fmtShort(amtAccepted);
+    document.getElementById('donut-accepted-amt').textContent = fmtShort(amtAccepted);
+    document.getElementById('donut-pending-amt').textContent = fmtShort(amtPending);
+    document.getElementById('donut-other-amt').textContent = fmtShort(amtOther);
+    const pct = amtTotal>0 ? Math.round(amtAccepted/amtTotal*100) : 0;
+    document.getElementById('donut-pct').textContent = pct+'%';
+    const hasData = amtTotal>0;
+    if (donutChart) { donutChart.destroy(); donutChart=null; }
+    const canvas = document.getElementById('donut-chart');
+    if (canvas) {
+      donutChart = new Chart(canvas, {
+        type:'doughnut',
+        data:{
+          labels: hasData?['Reçus','En attente','Autres']:['Aucun devis'],
+          datasets:[{ data: hasData?[amtAccepted,amtPending,amtOther]:[1], backgroundColor: hasData?['#1D9E75','#BA7517','#2e2e2c']:['#2e2e2c'], borderWidth:0, hoverOffset: hasData?4:0 }]
+        },
+        options:{ responsive:true, maintainAspectRatio:true, cutout:'68%', plugins:{ legend:{display:false}, tooltip:{ enabled:hasData, callbacks:{ label:ctx=>' '+ctx.label+' : '+fmtShort(ctx.raw) } } }, animation:{duration:500} }
+      });
+    }
+    const tbody = document.getElementById('dash-tbody');
+    const recent = [...devis].reverse().slice(0,4);
+    if (!recent.length) {
+      tbody.innerHTML = '<tr><td colspan="5"><div class="empty"><i class="ti ti-file-off"></i><p>Aucun devis pour l\'instant.<br>Crée ton premier devis !</p></div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = recent.map(d=>{
+      const t = getTotal(d.lines);
+      return '<tr><td><strong>'+d.num+'</strong></td><td>'+(d.client||'—')+'</td><td>'+fmtShort(t.ttc)+'</td><td>'+statusBadge(d.status)+'</td><td><button class="link-btn" onclick="editDevis('+d.id+')">Ouvrir</button></td></tr>';
+    }).join('');
+  }
+
+  function renderListe() {
+    const q = (document.getElementById('search-input')?.value||'').toLowerCase();
+    const filtered = devis.filter(d=>!q||(d.client||'').toLowerCase().includes(q)||(d.num||'').toLowerCase().includes(q)||(d.objet||'').toLowerCase().includes(q));
+    const tbody = document.getElementById('liste-tbody');
+    if (!filtered.length) { tbody.innerHTML='<tr><td colspan="7"><div class="empty"><i class="ti ti-search-off"></i><p>Aucun devis trouvé.</p></div></td></tr>'; return; }
+    tbody.innerHTML = [...filtered].reverse().map(d=>{
+      const t = getTotal(d.lines);
+      return '<tr><td><strong>'+d.num+'</strong></td><td>'+(d.client||'—')+'</td><td style="color:var(--muted);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(d.objet||'—')+'</td><td>'+fmtShort(t.ttc)+'</td><td style="color:var(--muted)">'+(d.date||'—')+'</td><td>'+statusBadge(d.status)+'</td><td style="display:flex;gap:4px;align-items:center;"><button class="icon-btn" onclick="editDevis('+d.id+')" title="Modifier"><i class="ti ti-edit"></i></button><button class="icon-btn" onclick="cycleStatus('+d.id+')" title="Changer statut"><i class="ti ti-refresh"></i></button><button class="icon-btn danger" onclick="deleteDevis('+d.id+')" title="Supprimer"><i class="ti ti-trash"></i></button></td></tr>';
+    }).join('');
+  }
+
+  function renderClients() {
+    const map = {};
+    devis.forEach(d=>{
+      const key = d.client||'Inconnu';
+      if (!map[key]) map[key]={adresse:d.adresse||'',count:0,total:0};
+      map[key].count++; map[key].total+=getTotal(d.lines).ttc;
+    });
+    const dl = document.getElementById('dl-clients');
+    if (dl) dl.innerHTML = Object.keys(map).map(n=>'<option value="'+n+'">').join('');
+    const tbody = document.getElementById('clients-tbody');
+    const entries = Object.entries(map);
+    if (!entries.length) { tbody.innerHTML='<tr><td colspan="4"><div class="empty"><i class="ti ti-users-off"></i><p>Aucun client enregistré.</p></div></td></tr>'; return; }
+    tbody.innerHTML = entries.map(([name,info])=>'<tr><td><strong>'+name+'</strong></td><td style="color:var(--muted)">'+(info.adresse||'—')+'</td><td>'+info.count+'</td><td>'+fmtShort(info.total)+'</td></tr>').join('');
+  }
+
+  function newDevis() { editingId=null; resetForm(); showPage('nouveau',document.querySelectorAll('.nav-item')[1]); }
+
+  function resetForm() {
+    document.getElementById('f-num').value = generateNum();
+    document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
+    document.getElementById('f-client').value='';
+    document.getElementById('f-adresse').value='';
+    document.getElementById('f-objet').value='';
+    document.getElementById('f-notes').value='';
+    lines=[{desc:'',qty:1,unit:'h',price:0}];
+    renderLines();
+  }
+
+  function addLine(desc,qty,unit,price) { lines.push({desc:desc||'',qty:qty!==undefined?qty:1,unit:unit||'h',price:price!==undefined?price:0}); renderLines(); }
+  function removeLine(i) { lines.splice(i,1); renderLines(); }
+
+  function renderLines() {
+    const tbody = document.getElementById('lines-tbody');
+    tbody.innerHTML = lines.map((l,i)=>
+      '<tr><td><input class="line-input" value="'+escHtml(l.desc)+'" placeholder="Description..." oninput="lines['+i+'].desc=this.value"></td>'
+      +'<td><input class="line-input" type="number" min="0" step="0.5" value="'+l.qty+'" style="width:55px" oninput="lines['+i+'].qty=parseFloat(this.value)||0;updateTotals()"></td>'
+      +'<td><select class="line-input" style="width:78px" onchange="lines['+i+'].unit=this.value">'
+      +['h','m²','m','u','forfait','j'].map(u=>'<option '+(l.unit===u?'selected':'')+'>'+u+'</option>').join('')
+      +'</select></td>'
+      +'<td><input class="line-input" type="number" min="0" step="0.01" value="'+l.price+'" style="width:80px" oninput="lines['+i+'].price=parseFloat(this.value)||0;updateTotals()"></td>'
+      +'<td style="font-weight:500;color:var(--accent-text)">'+fmtCurrency((parseFloat(l.qty)||0)*(parseFloat(l.price)||0))+'</td>'
+      +'<td><button class="icon-btn danger" onclick="removeLine('+i+')"><i class="ti ti-x" style="font-size:13px"></i></button></td></tr>'
+    ).join('');
+    updateTotals();
+  }
+
+  function updateTotals() {
+    const t = getTotal(lines);
+    document.getElementById('t-ht').textContent = fmtCurrency(t.ht);
+    document.getElementById('t-tva').textContent = fmtCurrency(t.tva);
+    document.getElementById('t-ttc').textContent = fmtCurrency(t.ttc);
+  }
+
+  function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function saveDevis(status) {
+    const num = document.getElementById('f-num').value.trim()||generateNum();
+    const client = document.getElementById('f-client').value.trim();
+    const adresse = document.getElementById('f-adresse').value.trim();
+    const objet = document.getElementById('f-objet').value.trim();
+    const date = document.getElementById('f-date').value||new Date().toISOString().slice(0,10);
+    const notes = document.getElementById('f-notes').value.trim();
+    if (!client||!objet) { notify('Remplis au moins le client et l\'objet.'); return; }
+    const entry = { id:editingId||Date.now(), num, client, adresse, objet, date, notes, status, lines:JSON.parse(JSON.stringify(lines)) };
+    if (editingId) { const idx=devis.findIndex(d=>d.id===editingId); if(idx>=0) devis[idx]=entry; }
+    else { devis.push(entry); nextNum++; }
+    save();
+    notify(status==='draft'?'Brouillon sauvegardé.':'Devis enregistré !','success');
+    editingId=null;
+    renderDashboard();
+  }
+
+  function editDevis(id) {
+    const d = devis.find(x=>x.id===id); if(!d) return;
+    editingId=id;
+    document.getElementById('f-num').value=d.num;
+    document.getElementById('f-date').value=d.date;
+    document.getElementById('f-client').value=d.client;
+    document.getElementById('f-adresse').value=d.adresse;
+    document.getElementById('f-objet').value=d.objet;
+    document.getElementById('f-notes').value=d.notes;
+    lines=JSON.parse(JSON.stringify(d.lines));
+    renderLines();
+    showPage('nouveau',document.querySelectorAll('.nav-item')[1]);
+  }
+
+  function deleteDevis(id) {
+    if(!confirm('Supprimer ce devis ?')) return;
+    devis=devis.filter(d=>d.id!==id); save();
+    notify('Devis supprimé.'); renderListe(); renderDashboard(); renderClients();
+  }
+
+  function cycleStatus(id) {
+    const d=devis.find(x=>x.id===id); if(!d) return;
+    d.status=statusNext(d.status); save();
+    notify('Statut → '+{draft:'Brouillon',pending:'En attente',accepted:'Accepté',refused:'Refusé'}[d.status],'success');
+    renderListe(); renderDashboard();
+  }
+
+  function openPreview() {
+    const client=document.getElementById('f-client').value||'Client';
+    const adresse=document.getElementById('f-adresse').value||'';
+    const objet=document.getElementById('f-objet').value||'Travaux';
+    const num=document.getElementById('f-num').value||'—';
+    const date=document.getElementById('f-date').value||'';
+    const notes=document.getElementById('f-notes').value||'';
+    const t=getTotal(lines);
+    const pnom=params.nom||'Mon Entreprise';
+    const pmetier=params.metier||'';
+    const psiret=params.siret?' · SIRET '+params.siret:'';
+    const padresse=params.adresse||'';
+    const pemail=params.email||'';
+    const ptel=params.tel||'';
+    const linesHtml=lines.filter(l=>l.desc||l.price).map(l=>
+      '<tr><td style="padding:9px 10px 9px 0;color:#1a1a18">'+escHtml(l.desc||'—')+'</td>'
+      +'<td style="padding:9px 10px 9px 0;color:#1a1a18">'+l.qty+'</td>'
+      +'<td style="padding:9px 10px 9px 0;color:#1a1a18">'+l.unit+'</td>'
+      +'<td style="padding:9px 10px 9px 0;color:#1a1a18">'+fmtCurrency(parseFloat(l.price)||0)+'</td>'
+      +'<td style="padding:9px 0 9px 0;font-weight:500;color:#1a1a18">'+fmtCurrency((parseFloat(l.qty)||0)*(parseFloat(l.price)||0))+'</td></tr>'
+    ).join('');
+    document.getElementById('preview-body').innerHTML=
+      '<div class="preview-head"><div><div class="preview-company-name">'+escHtml(pnom)+'</div>'
+      +'<div class="preview-company-meta">'+escHtml(pmetier)+escHtml(psiret)+(padresse?'<br>'+escHtml(padresse):'')+(ptel?'<br>'+escHtml(ptel):'')+(pemail?'<br>'+escHtml(pemail):'')+'</div></div>'
+      +'<div><div class="preview-num-label">Devis</div><div class="preview-num-val">'+escHtml(num)+'</div><div class="preview-num-date">Date : '+date+'</div></div></div>'
+      +'<div class="preview-parties"><div><div class="party-label">Prestataire</div><div class="party-name">'+escHtml(pnom)+'</div><div class="party-detail">'+escHtml(padresse)+'</div><div class="party-detail">'+escHtml(pemail)+'</div></div>'
+      +'<div><div class="party-label">Client</div><div class="party-name">'+escHtml(client)+'</div><div class="party-detail">'+escHtml(adresse)+'</div></div></div>'
+      +'<div class="preview-objet">Objet : '+escHtml(objet)+'</div>'
+      +'<table style="margin-bottom:16px"><thead><tr><th style="width:40%;color:#6b6b68">Description</th><th style="color:#6b6b68">Qté</th><th style="color:#6b6b68">Unité</th><th style="color:#6b6b68">Prix unit.</th><th style="color:#6b6b68">Total HT</th></tr></thead><tbody>'+linesHtml+'</tbody></table>'
+      +'<div style="display:flex;justify-content:flex-end;margin-bottom:16px"><div style="min-width:230px">'
+      +'<div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;color:#6b6b68"><span>Sous-total HT</span><span>'+fmtCurrency(t.ht)+'</span></div>'
+      +'<div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;color:#6b6b68"><span>TVA (20%)</span><span>'+fmtCurrency(t.tva)+'</span></div>'
+      +'<div style="display:flex;justify-content:space-between;font-size:15px;font-weight:600;color:#1a1a18;border-top:0.5px solid rgba(0,0,0,0.1);padding-top:8px;margin-top:4px"><span>Total TTC</span><span style="color:#EF9F27">'+fmtCurrency(t.ttc)+'</span></div>'
+      +'</div></div>'
+      +(notes?'<div style="margin-top:16px;padding-top:12px;border-top:0.5px solid rgba(0,0,0,0.1);font-size:12px;color:#6b6b68">'+escHtml(notes)+'</div>':'')
+      +'<div class="sign-grid"><div><div class="sign-label">Signature du prestataire</div><div class="sign-line"></div></div>'
+      +'<div><div class="sign-label">Bon pour accord (client)</div><div class="sign-line"></div></div></div>';
+    showPage('preview',null);
+  }
+
+  function loadParams() {
+    document.getElementById('p-nom').value=params.nom||'';
+    document.getElementById('p-metier').value=params.metier||'';
+    document.getElementById('p-siret').value=params.siret||'';
+    document.getElementById('p-tel').value=params.tel||'';
+    document.getElementById('p-adresse').value=params.adresse||'';
+    document.getElementById('p-email').value=params.email||'';
+  }
+
+  function saveParams() {
+    params={ nom:document.getElementById('p-nom').value.trim()||'Mon Entreprise', metier:document.getElementById('p-metier').value.trim(), siret:document.getElementById('p-siret').value.trim(), tel:document.getElementById('p-tel').value.trim(), adresse:document.getElementById('p-adresse').value.trim(), email:document.getElementById('p-email').value.trim() };
+    save(); notify('Paramètres sauvegardés !','success');
+  }
+
+  resetForm();
+  renderDashboard();
+  renderClients();
+</script>
+</body>
+</html>
